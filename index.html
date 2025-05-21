@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Snake Deluxe - Advanced v2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="disclaimer">
+        <p><strong>Disclaimer:</strong> This is a fun personal project. Features are iterative. Enjoy!</p>
+    </div>
+
+    <div class="container">
+        <div id="mainMenu">
+            <h1>SNAKE DELUXE</h1>
+            <div id="snakeLogoPlaceholder" title="Animated Snake!"></div>
+            <button class="menu-button" id="startButton">Start Game</button>
+            <button class="menu-button" id="endlessModeButton">Endless Mode</button>
+            <button class="menu-button" id="settingsButton">Settings</button>
+            <button class="menu-button" id="creditsButton">Credits</button>
+            <div id="mainMenuHighScore">High Score: 0</div>
+        </div>
+
+        <div id="settingsScreen">
+            <h2>Settings</h2>
+            <div>
+                <label for="gameSpeed">Game Speed:</label>
+                <select id="gameSpeed">
+                    <option value="150">Slow</option>
+                    <option value="100" selected>Normal</option>
+                    <option value="70">Fast</option>
+                    <option value="40">Ludicrous</option>
+                </select>
+            </div>
+            <div>
+                <label for="gameStyle">Game Style:</label>
+                <select id="gameStyle">
+                    <option value="retro" selected>Retro</option>
+                    <option value="modern">Modern</option>
+                    <option value="scifi">Sci-Fi</option>
+                </select>
+            </div>
+            <button class="menu-button" id="backToMenuFromSettings">Back to Main Menu</button>
+        </div>
+
+        <div id="gameArea">
+            <canvas id="gameCanvas"></canvas>
+            <div id="scoreBoardContainer">
+                <div id="scoreBoard">Score: 0</div>
+                <div id="highScoreDisplay">High Score: 0</div>
+            </div>
+            <div id="pauseButtonContainer">
+                 <button class="game-button pause" id="pauseButton">Pause</button>
+            </div>
+            <div class="mobile-controls">
+                <div class="empty-cell"></div><button id="upButton">↑</button><div class="empty-cell"></div>
+                <button id="leftButton">←</button><div class="empty-cell"></div><button id="rightButton">→</button>
+                <div class="empty-cell"></div><button id="downButton">↓</button><div class="empty-cell"></div>
+            </div>
+        </div>
+        
+        <div id="creditsScreen">
+            <h2>Credits</h2>
+            <p>Game concept and development by: <a href="https://github.com/amirouanother" target="_blank" id="creditsGithubLink">amirouanother</a></p>
+            <p>This game is a learning project. Thanks for playing!</p>
+            <p style="font-size:0.8em; margin-top:15px;">SFX: Find free sound files (.mp3/.wav) and update paths in <code>script.js</code>. Search "free game sound effects".</p>
+            <button class="menu-button" id="backToMenuFromCredits">Back to Main Menu</button>
+        </div>
+    </div>
+
+    <div id="gameOverlayMessage">
+        <h2 id="overlayTitle">GAME OVER!</h2>
+        <p id="overlayText">Your score: 0</p>
+        <button class="menu-button" id="overlayRestartButton">Restart</button>
+        <button class="menu-button" id="overlayMenuButton">Main Menu</button>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
