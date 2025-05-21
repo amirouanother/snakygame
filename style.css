@@ -1,0 +1,209 @@
+/* General Body and Container Styles */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #2c2c2c;
+    font-family: 'Courier New', Courier, monospace;
+    color: #fff;
+    overflow: hidden; /* Important for clean transitions */
+}
+
+#disclaimer {
+    background-color: #444;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #555;
+    text-align: center; /* Ensure disclaimer text is centered */
+    width: 90%;
+    max-width: 600px;
+    box-sizing: border-box;
+}
+
+.container {
+    text-align: center;
+    background-color: #333;
+    padding: 20px; /* Base padding for the container itself */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    position: relative; /* Needed for positioning screens during transitions */
+    width: 90%;
+    max-width: 600px; /* Max width for the container */
+    min-height: 400px; /* Give some minimum height for content */
+    overflow: hidden; /* Hide overflowing content during transitions */
+    box-sizing: border-box;
+}
+
+/* Screen Base Styles and Transitions */
+#mainMenu, #settingsScreen, #creditsScreen, #gameArea {
+    display: none; 
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Spacing between elements within a screen */
+    opacity: 0;
+    transform: scale(0.98) translateY(15px); 
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    width: 100%; 
+    position: absolute; 
+    top: 0;
+    left: 0;
+    padding: 20px; /* Consistent padding for screen content within container */
+    box-sizing: border-box;
+}
+
+#mainMenu.active, #settingsScreen.active, #creditsScreen.active, #gameArea.active {
+    display: flex !important; 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    position: relative; /* Take up space in normal flow when active */
+}
+
+/* Main Menu Specifics */
+#mainMenu h1 {
+    font-size: 2.5em;
+    color: #4CAF50;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px #000;
+}
+
+@keyframes snakeWiggle {
+    0% { transform: skewX(0deg); background-color: #4CAF50;}
+    25% { transform: skewX(-5deg); }
+    50% { transform: skewX(0deg); background-color: #3e8e41;}
+    75% { transform: skewX(5deg); }
+    100% { transform: skewX(0deg); background-color: #4CAF50;}
+}
+
+#snakeLogoPlaceholder {
+    width:120px; 
+    height:25px; 
+    background: repeating-linear-gradient(45deg, #4CAF50, #4CAF50 7px, #3e8e41 7px, #3e8e41 14px); 
+    margin-bottom:20px;
+    border-radius: 10px;
+    animation: snakeWiggle 2s infinite ease-in-out;
+}
+
+/* Buttons */
+.menu-button, .game-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 12px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1.1em;
+    margin: 8px 0; 
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    min-width: 200px;
+}
+.menu-button:hover, .game-button:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+}
+.game-button.pause { background-color: #f44336; }
+.game-button.pause.resume { background-color: #4CAF50; } /* Style for when it says "Resume" */
+.game-button.pause:hover { background-color: #d32f2f; }
+.game-button.pause.resume:hover { background-color: #45a049; }
+
+
+/* Game Area & Canvas */
+#gameArea {
+    padding: 10px; /* Less padding for game area */
+}
+
+canvas {
+    border: 3px solid #888;
+    max-width: 100%; 
+    max-height: 55vh; 
+    box-sizing: border-box;
+    display: block; /* Helps with centering or margin auto if needed */
+    margin-left: auto;
+    margin-right: auto;
+}
+/* Canvas Style Themes */
+.retro-style canvas { background-color: #000; border-color: #555; }
+.modern-style canvas { background-color: #e0e0e0; border-color: #999; }
+.scifi-style canvas { background-color: #0a0a1a; border-color: #00ffff; }
+
+
+/* Scoreboard */
+#scoreBoardContainer {
+    display: flex;
+    justify-content: space-around; 
+    width: 100%;
+    max-width: 450px; /* Limit width of scoreboard container */
+    margin: 10px auto 0; /* Auto margins for centering */
+}
+#scoreBoard, #highScoreDisplay { font-size: 1.2em; color: #fff; }
+#mainMenuHighScore { font-size: 1.1em; color: #ddd; margin-top: 10px; }
+
+/* Game Overlay (Pause/Game Over) */
+#gameOverlayMessage { 
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.6em; 
+    color: white;
+    background-color: rgba(0, 0, 0, 0.88);
+    padding: 30px;
+    border-radius: 10px;
+    display: none; /* Hidden by default */
+    text-align: center;
+    z-index: 1000; 
+    width: 80%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+#gameOverlayMessage h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+#gameOverlayMessage p {
+    margin-bottom: 20px;
+}
+#gameOverlayMessage button { margin-top: 10px; }
+
+/* Mobile Controls */
+.mobile-controls {
+    margin-top: 15px;
+    display: none; /* Hidden by default, JS shows if touch device */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: clamp(180px, 70%, 240px); /* Responsive width */
+    max-width: 240px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.mobile-controls button {
+    background-color: #555; border: 1px solid #777; color: white;
+    padding: 15px; font-size: 1.5em; cursor: pointer; border-radius: 8px;
+    width: 100%; box-sizing: border-box;
+}
+.mobile-controls .empty-cell { visibility: hidden; }
+        
+/* Settings Screen */
+#settingsScreen label, #settingsScreen select { margin: 8px 5px; font-size: 1.1em; }
+#settingsScreen div { /* Add some spacing for setting rows */
+    margin-bottom: 10px;
+}
+#settingsScreen select {
+    padding: 8px; border-radius: 5px; background-color: #555;
+    color: white; border: 1px solid #777; min-width: 150px;
+}
+
+/* Credits Screen */
+#creditsScreen h2 { margin-bottom: 15px; }
+#creditsScreen p { font-size: 1.2em; line-height: 1.6; margin: 10px 0; }
+#creditsScreen a { color: #4CAF50; text-decoration: none; }
+#creditsScreen a:hover { text-decoration: underline; }
+
+/* Pause Button specific container */
+#pauseButtonContainer { margin-top: 10px; }
