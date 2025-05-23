@@ -19,7 +19,7 @@ Welcome to Snake Deluxe! This is a classic snake game rebuilt with modern web te
 *   **Sound Effects:** Basic SFX for key game events (can be customized).
 
 ## 🎮 How to Play
-
+**First, go to https://amirouanother.github.io/snakygame/ to play the game**
 **Objective:** Control your snake to eat apples 🍎. Each apple makes your snake longer. Avoid crashing into walls (in some modes, though this version wraps around), your own body, or (usually) other snakes.
 
 **Controls:**
