@@ -103,6 +103,59 @@ function playSound(soundName) {
     }
 }
 
+ // --- Background Music --- //
+const backgroundMusic = new Audio('sfx/backgroundmusic.mp3');
+backgroundMusic.loop = true; // This will make the music loop continuously
+unction playBackgroundLoop() {
+    backgroundMusic.play().then(() => {
+        // Autoplay started!
+        console.log("Background music playing.");
+    }).catch(error => {
+        // Autoplay was prevented.
+        console.log("Background music autoplay was prevented. Waiting for user interaction to play.");
+        // We can try to play it once the user interacts with the page (e.g., clicks).
+        const playOnClick = () => {
+            backgroundMusic.play().then(() => {
+                console.log("Background music playing after user interaction.");
+            }).catch(err => {
+                console.error("Still couldn't play music after interaction:", err);
+            });
+            // Remove the event listener after the first interaction that successfully plays music
+            // or if you want it to try on every click if the first fails for some reason.
+            // For simplicity, we'll remove it to avoid multiple bindings.
+            document.body.removeEventListener('click', playOnClick);
+            document.body.removeEventListener('keydown', playOnClick); // Also try on keydown
+        };
+        document.body.addEventListener('click', playOnClick, { once: true }); // Play on first click
+        document.body.addEventListener('keydown', playOnClick, { once: true }); // Or on first key press
+    });
+}
+
+// NOW, YOU NEED TO DECIDE WHEN TO CALL playBackgroundLoop()
+
+// Option A: Try to play when the game loads (might be blocked until user clicks)
+// window.addEventListener('load', playBackgroundLoop);
+
+// Option B: Play when the game actually starts (e.g., inside your startGame function or after the first keypress that starts the snake moving)
+// For example, if you have a function that starts the game or resets it:
+/*
+function initGame() { // or whatever your game start/reset function is called
+    // ... your existing game initialization logic ...
+    playBackgroundLoop(); // Start background music
+}
+*/
+
+// If your game starts immediately or with the first arrow key press, you might call it there.
+// For instance, if your game starts upon the first keydown:
+let gameHasStartedForMusic = false;
+window.addEventListener("keydown", function(event) {
+    if (!gameHasStartedForMusic) { // Play music only on the very first keydown that starts the game
+        // Check if it's an arrow key or a key that starts your game
+        // For example, if any key starts the movement, or specific keys:
+        // if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { // More specific
+        playBackgroundLoop();
+        gameHasStartedForMusic = true;
+
 // --- UI & Screen Management ---
 function updatePersistentHighScoreDisplay() {
     const formattedHighScore = `High Score: ${highScore}`;
