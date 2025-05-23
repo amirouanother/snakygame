@@ -54,6 +54,12 @@ Unlock by scoring 100 points in the regular game mode. In Endless Mode, there ar
 
 For the best experience, especially if you encounter issues with sound effects loading directly from the file system, you might consider running it through a simple local web server. Many code editors (like VS Code with the "Live Server" extension) offer this functionality easily.
 
-## 🖼️ Screenshots (Add your own!)
+## 🖼️ Screenshots!
 
-*(Placeholder: Consider adding a screenshot of the main menu and gameplay here.)*
+*Main menu*
+![image](https://github.com/user-attachments/assets/03a7468b-e09e-4f07-b1be-6d69d842d897)
+*Gameplay screenshots.*
+![image](https://github.com/user-attachments/assets/31776e15-cf2a-4173-9452-92c8623cd71f)
+*Settings Menu*
+![image](https://github.com/user-attachments/assets/e78e2224-7f2b-493c-9013-3d43b12e72c4)
+
