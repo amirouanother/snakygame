@@ -73,7 +73,7 @@ const sfxPaths = {
     gameOver: './sfx/gameOver.mp3',
     kill: './sfx/kill.mp3',
     pause: './sfx/ui_click.mp3',
-    backgroundMusic: './sfx/your_background_music_file.mp3' // ADDED: Path for background music (REPLACE THIS FILENAME)
+    backgroundMusic: './sfx/backgroundmusic.mp3' // ADDED: Path for background music (REPLACE THIS FILENAME)
 };
 
 try {
@@ -124,7 +124,7 @@ function playSound(soundName) {
 function playBackgroundMusic() {
     if (bgMusic && bgMusic.src &&
         !bgMusic.src.includes('YOUR_SOUND_FILE_PATH_OR_URL_HERE') &&
-        !bgMusic.src.includes('your_background_music_file.mp3') && // Check specific placeholder
+        !bgMusic.src.includes('backgroundmusic.mp3') && // Check specific placeholder
         !bgMusic.src.endsWith('/undefined')) {
         if (bgMusic.paused) {
             let playPromise = bgMusic.play();
