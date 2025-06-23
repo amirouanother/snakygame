@@ -81,12 +81,12 @@ function stopBackgroundMusic() { if (bgMusic) { bgMusic.pause(); bgMusic.current
 
 // --- FIREBASE CONFIGURATION AND INITIALIZATION ---
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // <<< REPLACE WITH YOUR ACTUAL FIREBASE API KEY
-  authDomain: "YOUR_AUTH_DOMAIN", // <<< REPLACE
-  projectId: "YOUR_PROJECT_ID",   // <<< REPLACE
-  storageBucket: "YOUR_STORAGE_BUCKET", // <<< REPLACE
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // <<< REPLACE
-  appId: "YOUR_APP_ID"              // <<< REPLACE
+  apiKey: "AIzaSyCudVIr84WLo8ueSSoMX6PkPUV9JUPlg10", // <<< REPLACE WITH YOUR ACTUAL FIREBASE API KEY
+  authDomain: "snake-game-4746a.firebaseapp.com", // <<< REPLACE
+  projectId: "snake-game-4746a",   // <<< REPLACE
+  storageBucket: "snake-game-4746a.firebasestorage.app", // <<< REPLACE
+  messagingSenderId: "244321529239", // <<< REPLACE
+  appId: "1:244321529239:web:8cda0e09f61bdc7a7d28d2"              // <<< REPLACE
 };
 
 const app = firebase.initializeApp(firebaseConfig);
