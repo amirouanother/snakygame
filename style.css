@@ -207,3 +207,145 @@ canvas {
 
 /* Pause Button specific container */
 #pauseButtonContainer { margin-top: 10px; }
+
+/* --- NEW SCREEN STYLES --- */
+#lobbyBrowser, #lobbyScreen, #leaderboardDisplayContainer {
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    opacity: 0;
+    transform: scale(0.98) translateY(15px);
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    width: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#lobbyBrowser.active, #lobbyScreen.active, #leaderboardDisplayContainer.active {
+    display: flex !important;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    position: relative;
+}
+
+/* Styles for lobby list items and buttons */
+#lobbyList {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    max-width: 300px;
+    text-align: left;
+}
+#lobbyList li {
+    background-color: #555;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1em;
+}
+#lobbyList button { /* Style for Join buttons */
+    margin: 0;
+    padding: 5px 10px;
+    font-size: 0.8em;
+    background-color: #4CAF50; /* Example color */
+}
+#lobbyList button:hover {
+    background-color: #45a049;
+}
+
+#lobbyPlayers p, #lobbySettingsDisplay p {
+    margin: 5px 0;
+    font-size: 1em;
+    text-align: left; /* Align text left within its container */
+}
+
+#lobbyPlayers { width: 100%; max-width: 300px; }
+#lobbySettingsDisplay { width: 100%; max-width: 300px; }
+#lobbySettingsDisplay h3 { text-align: center; } /* Center the heading */
+
+/* Make sure your container has relative positioning for these absolute positioned screens */
+.container {
+    position: relative;
+    /* ... other styles ... */
+}
+
+/* Adjust main menu button positions if needed */
+#mainMenu {
+    gap: 10px; /* Reduce gap slightly for more buttons */
+}
+
+/* Styles for lobby controls (invite input and button) */
+#lobbyControls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+#inviteLobbyIdInput {
+    flex-grow: 1;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: #555;
+    color: white;
+    border: 1px solid #777;
+}
+#joinLobbyByIdBtn {
+    padding: 8px 15px;
+}
+
+/* Team Mode Specific Styles */
+#teamSelection {
+    display: none; /* Hidden by default, shown if teamMode is true */
+    flex-direction: row; /* Arrange buttons side-by-side */
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+#teamSelection button {
+    padding: 10px 20px;
+    font-size: 1em;
+    min-width: 120px;
+}
+#teamSelection button:hover {
+    background-color: #555; /* Example hover */
+}
+
+#teamScoreDisplay {
+    display: none; /* Hidden by default */
+    margin-top: 10px;
+    width: 100%;
+    max-width: 300px;
+    justify-content: space-around;
+}
+#teamScoreDisplay h4 {
+    margin: 5px 0;
+    font-size: 1.2em;
+}
+#teamScoreDisplay span {
+    font-weight: bold;
+    color: #4CAF50; /* Example color */
+}
+#teamScoreDisplay h4:nth-of-type(2) span { /* Red team score */
+    color: #f44336; /* Example color */
+}
+
+#gameTimerDisplay {
+    display: none; /* Hidden by default */
+    margin-top: 10px;
+}
+#gameTimerDisplay h3 { margin-bottom: 5px; }
+#gameTimerDisplay span { font-weight: bold; color: #FFEB3B; } /* Yellow for timer */
+
+/* Adjustments for when team mode is active */
+/* You might want to hide the default scoreboards when team scores are visible */
+#gameArea.active #scoreBoardContainer,
+#gameArea.active #highScoreDisplay {
+    /* display: none; */ /* Uncomment if you want to hide these */
+}
