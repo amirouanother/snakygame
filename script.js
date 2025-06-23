@@ -1,4 +1,4 @@
-// --- EXISTING DOM ELEMENTS AND VARIABLES ---
+// --- DOM ELEMENTS AND VARIABLES ---
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const mainMenu = document.getElementById('mainMenu');
@@ -95,12 +95,13 @@ const auth = firebase.auth();
 
 let currentUser = null;
 let currentLobbyId = null;
-let lobbyListener = null;
-let lobbiesSnapshotListener = null;
-let leaderboardListener = null;
+let lobbyListener = null; // Listener for lobby document changes
+let lobbiesSnapshotListener = null; // Listener for the list of lobbies
+let leaderboardListener = null; // Listener for the leaderboard
 let currentMapType = 'normal'; // Default map type
 let gameTimerValue = 0;
 let timerInterval = null;
+let lobbySettingsParsed = null; // Store lobby settings when game starts
 
 // --- UI AND SCREEN MANAGEMENT ---
 const lobbyBrowser = document.getElementById('lobbyBrowser');
@@ -178,10 +179,9 @@ function resizeCanvas() {
     availableHeight = Math.max(availableHeight, GRID_SIZE * 10);
     canvasWidth = Math.floor(availableWidth / GRID_SIZE) * GRID_SIZE;
     canvasHeight = Math.floor(availableHeight / GRID_SIZE) * GRID_SIZE;
-    // Adjust canvas size for large maps
     if (currentMapType === 'large') {
-        canvasWidth = Math.max(canvasWidth, GRID_SIZE * 25); // Example: Make large map wider
-        canvasHeight = Math.max(canvasHeight, GRID_SIZE * 20); // Example: Make large map taller
+        canvasWidth = Math.max(canvasWidth, GRID_SIZE * 25);
+        canvasHeight = Math.max(canvasHeight, GRID_SIZE * 20);
     } else {
         canvasWidth = Math.max(canvasWidth, GRID_SIZE * 15);
         canvasHeight = Math.max(canvasHeight, GRID_SIZE * 10);
@@ -302,7 +302,6 @@ function displayLobbies() {
             });
         }
     }, (error) => { console.error("Error fetching lobbies:", error); lobbyList.innerHTML = '<li>Error loading lobbies.</li>'; });
-    // Update invite input field
     if (inviteLobbyIdInput) inviteLobbyIdInput.value = window.location.origin + window.location.pathname + '#lobby=';
 }
 
@@ -347,8 +346,7 @@ function renderLobbyScreen(lobbyData) {
         readyButton.textContent = player && player.ready ? "Unready" : "Ready Up";
         readyButton.onclick = () => togglePlayerReadyStatus(lobbyData.id);
     }
-     // Update invite input field with the current lobby ID for easy sharing
-    if (inviteLobbyIdInput) inviteLobbyIdInput.value = window.location.origin + window.location.pathname + `#lobby=${lobbyData.id}`;
+     if (inviteLobbyIdInput) inviteLobbyIdInput.value = window.location.origin + window.location.pathname + `#lobby=${lobbyData.id}`;
 }
 
 async function togglePlayerReadyStatus(lobbyId) {
@@ -488,7 +486,7 @@ function updateTeamScores(teamsData) {
 
 // --- NEW FUNCTION: Handle Team Mode Game End ---
 function handleTeamModeEnd() {
-    if (!gameRunning || !currentLobbyId || !lobbySettings.teamMode) return;
+    if (!gameRunning || !currentLobbyId || !lobbySettingsParsed || !lobbySettingsParsed.teamMode) return;
     gameRunning = false; isPaused = false; clearInterval(gameLoopInterval); stopBackgroundMusic();
     const lobbyRef = db.collection("lobbies").doc(currentLobbyId);
     lobbyRef.get().then(doc => {
@@ -513,15 +511,15 @@ function handleTeamModeEnd() {
 // --- MODIFIED EXISTING FUNCTIONS FOR INTEGRATION ---
 function initGame(endless = false, lobbySettings = null) {
     console.log("initGame called. Endless:", endless, "Lobby Settings:", lobbySettings);
-    let lobbySettingsParsed = null; // Use a local variable for settings
+    lobbySettingsParsed = null; // Reset
 
     if (lobbySettings) {
         currentSpeed = lobbySettings.speed;
         currentStyle = lobbySettings.style;
         currentMapType = lobbySettings.mapType || 'normal';
         gameTimerValue = lobbySettings.gameDuration || 0;
-        isMultiplayer = true; // Set multiplayer flag
-        lobbySettingsParsed = lobbySettings; // Store settings locally
+        isMultiplayer = true;
+        lobbySettingsParsed = lobbySettings;
 
         gameSpeedSelect.value = currentSpeed;
         gameStyleSelect.value = currentStyle;
@@ -529,11 +527,11 @@ function initGame(endless = false, lobbySettings = null) {
     } else {
         currentSpeed = parseInt(gameSpeedSelect.value);
         currentStyle = gameStyleSelect.value;
-        currentMapType = 'normal'; // Default for local
+        currentMapType = 'normal';
         gameTimerValue = 0;
         isMultiplayer = false;
     }
-    resizeCanvas(); // Resize canvas based on map type
+    resizeCanvas();
 
     showScreen(gameArea);
     setTimeout(() => {
@@ -545,7 +543,7 @@ function initGame(endless = false, lobbySettings = null) {
         if (!isEndlessMode && !lobbySettings) { for (let i = 0; i < MAX_AI_SNAKES; i++) spawnAISnake(); }
 
         if (lobbySettingsParsed && lobbySettingsParsed.teamMode) {
-            aiSnakes = []; // No AI in multiplayer team mode
+            aiSnakes = [];
             updateTeamScores(lobbySettingsParsed.teams);
             startTimer(lobbySettingsParsed.gameDuration);
             if (scoreBoard) scoreBoard.style.display = 'none'; if (highScoreDisplay) highScoreDisplay.style.display = 'none';
@@ -584,10 +582,10 @@ function triggerGameOver(reason) {
     }
     updatePersistentHighScoreDisplay();
 
-    if (currentLobbyId && lobbySettingsParsed && lobbySettingsParsed.teamMode) { // Check if game was from lobby and was team mode
-        handleTeamModeEnd(); // Use the specific team mode end handler
+    if (currentLobbyId && lobbySettingsParsed && lobbySettingsParsed.teamMode) {
+        handleTeamModeEnd();
         return;
-    } else if (currentLobbyId) { // Game was multiplayer but not team mode
+    } else if (currentLobbyId) {
         const lobbyRef = db.collection("lobbies").doc(currentLobbyId);
         lobbyRef.get().then(doc => {
             if (doc.exists()) {
@@ -602,7 +600,7 @@ function triggerGameOver(reason) {
         setTimeout(() => {
             showScreen(lobbyScreen); if (currentLobbyId) syncLobbyState(currentLobbyId);
         }, 2000);
-    } else { // Local game
+    } else {
         addLeaderboardScore(currentUser.displayName || `Player_${currentUser.uid.substring(0, 4)}`, score);
     }
     if (gameOverlayMessage) gameOverlayMessage.style.display = 'block';
@@ -624,12 +622,9 @@ function gameLoop() { if (!gameRunning || isPaused) return; updatePlayerSnake();
 function updatePlayerSnake() { if(!playerSnake || playerSnake.length === 0 || GRID_WIDTH <=0 || GRID_HEIGHT <=0) return; playerDirection = nextPlayerDirection; const head = { x: playerSnake[0].x + playerDirection.x, y: playerSnake[0].y + playerDirection.y }; if (head.x < 0) head.x = GRID_WIDTH - 1; else if (head.x >= GRID_WIDTH) head.x = 0; if (head.y < 0) head.y = GRID_HEIGHT - 1; else if (head.y >= GRID_HEIGHT) head.y = 0; playerSnake.unshift(head); if (apple && head.x === apple.x && head.y === apple.y) { score += 1; updateCurrentScoreDisplay(); playSound('eat'); spawnApple(); if (score >= 100 && !endlessModeUnlocked) { endlessModeUnlocked = true; localStorage.setItem('snakeEndlessUnlockedDeluxe', 'true'); if(endlessModeButton) endlessModeButton.style.display = 'inline-block'; setTimeout(() => alert("Congratulations! You've unlocked Endless Mode!"), 0); } } else { playerSnake.pop(); } }
 function updateAISnakes() { if(GRID_WIDTH <=0 || GRID_HEIGHT <=0) return; (aiSnakes || []).forEach(ai => { if (!ai.isAlive || !ai.body) return; let preferredDirection = ai.direction; const head = ai.body[0]; if (apple && Math.random() < 0.7) { let dx = apple.x - head.x; let dy = apple.y - head.y; let horizontalPriority = Math.abs(dx) > Math.abs(dy); if (horizontalPriority) { if (dx > 0 && ai.direction !== Directions.LEFT) preferredDirection = Directions.RIGHT; else if (dx < 0 && ai.direction !== Directions.RIGHT) preferredDirection = Directions.LEFT; else if (dy > 0 && ai.direction !== Directions.UP) preferredDirection = Directions.DOWN; else if (dy < 0 && ai.direction !== Directions.DOWN) preferredDirection = Directions.UP; } else { if (dy > 0 && ai.direction !== Directions.UP) preferredDirection = Directions.DOWN; else if (dy < 0 && ai.direction !== Directions.DOWN) preferredDirection = Directions.UP; else if (dx > 0 && ai.direction !== Directions.LEFT) preferredDirection = Directions.RIGHT; else if (dx < 0 && ai.direction !== Directions.RIGHT) preferredDirection = Directions.LEFT; } } const nextPotentialHead = {x: head.x + preferredDirection.x, y: head.y + preferredDirection.y}; let changedDirectionForSafety = false; if (ai.body.length > 1 && ai.body[1].x === nextPotentialHead.x && ai.body[1].y === nextPotentialHead.y) { const possibleTurns = Object.values(Directions).filter( d => d.name !== 'STOP' && d.name !== preferredDirection.name && d.name !== getOppositeDirection(preferredDirection.name)?.name ); if(possibleTurns.length > 0) preferredDirection = possibleTurns[Math.floor(Math.random() * possibleTurns.length)]; changedDirectionForSafety = true; } if (!changedDirectionForSafety && Math.random() < 0.05) { const possibleDirections = Object.values(Directions).filter(d => d.name !== 'STOP'); const validTurns = possibleDirections.filter(d => d.name !== getOppositeDirection(ai.direction.name)?.name || ai.body.length === 1); preferredDirection = validTurns[Math.floor(Math.random() * validTurns.length)] || ai.direction; } ai.direction = preferredDirection; const aiNewHead = { x: head.x + ai.direction.x, y: head.y + ai.direction.y }; if (aiNewHead.x < 0) aiNewHead.x = GRID_WIDTH - 1; else if (aiNewHead.x >= GRID_WIDTH) aiNewHead.x = 0; if (aiNewHead.y < 0) aiNewHead.y = GRID_HEIGHT - 1; else if (aiNewHead.y >= GRID_HEIGHT) aiNewHead.y = 0; ai.body.unshift(aiNewHead); if (apple && aiNewHead.x === apple.x && aiNewHead.y === apple.y) { playSound('eat'); spawnApple(); } else { ai.body.pop(); } for (let i = 1; i < ai.body.length; i++) { if (ai.body[i].x === aiNewHead.x && ai.body[i].y === aiNewHead.y) { ai.body = ai.body.slice(0, Math.max(1, Math.floor(ai.body.length / 2))); break; } } }); const aliveAIs = (aiSnakes || []).filter(ai => ai.isAlive).length; if (aliveAIs < MAX_AI_SNAKES && Math.random() < 0.1) { spawnAISnake(); } aiSnakes = (aiSnakes || []).filter(ai => ai.isAlive); }
 function getOppositeDirection(dirName) { if (dirName === Directions.UP.name) return Directions.DOWN; if (dirName === Directions.DOWN.name) return Directions.UP; if (dirName === Directions.LEFT.name) return Directions.RIGHT; if (dirName === Directions.RIGHT.name) return Directions.LEFT; return null; }
-function checkCollisions() { if (!gameRunning || !playerSnake || playerSnake.length === 0 || GRID_WIDTH <=0 || GRID_HEIGHT <=0) return; const playerHead = playerSnake[0]; for (let i = 1; i < playerSnake.length; i++) { if (playerSnake[i].x === playerHead.x && playerSnake[i].y === playerHead.y) { triggerGameOver("Crashed into yourself!"); return; } } if (!isMultiplayer) { // Local Mode Collision Logic const AIsToRemove = new Set(); (aiSnakes || []).forEach((ai, aiIndex) => { if (!ai.isAlive || !ai.body) return; const aiHead = ai.body[0]; for (let i = 0; i < ai.body.length; i++) { if (ai.body[i].x === playerHead.x && ai.body[i].y === playerHead.y) { if (i === 0) { if (playerSnake.length >= ai.body.length) { score += 2; playSound('kill'); ai.isAlive = false; AIsToRemove.add(ai.id); playerSnake.push({...playerSnake[playerSnake.length - 1]}); updateCurrentScoreDisplay(); } else { triggerGameOver("Head-on collision with a bigger AI snake!"); return; } } else { triggerGameOver("Crashed into an AI snake's body!"); return; } } } if (!gameRunning) return; for(let i = 1; i < playerSnake.length; i++) { if (playerSnake[i].x === aiHead.x && playerSnake[i].y === aiHead.y) { score += 2; playSound('kill'); ai.isAlive = false; AIsToRemove.add(ai.id); playerSnake.push({...playerSnake[playerSnake.length - 1]}); updateCurrentScoreDisplay(); break; } } for (let otherAiIndex = 0; otherAiIndex < (aiSnakes || []).length; otherAiIndex++) { if (aiIndex === otherAiIndex || !aiSnakes[otherAiIndex].isAlive || !aiSnakes[otherAiIndex].body) continue; const otherAI = aiSnakes[otherAiIndex]; for(let segIdx = 0; segIdx < otherAI.body.length; segIdx++){ if(otherAI.body[segIdx].x === aiHead.x && otherAI.body[segIdx].y === aiHead.y){ if(segIdx === 0) { if(ai.body.length > otherAI.body.length) { otherAI.isAlive = false; AIsToRemove.add(otherAI.id); } else if (otherAI.body.length > ai.body.length) { ai.isAlive = false; AIsToRemove.add(ai.id); } else { if(Math.random() < 0.5) {ai.isAlive = false; AIsToRemove.add(ai.id);} else {otherAI.isAlive = false; AIsToRemove.add(ai.id);} } } else { ai.isAlive = false; AIsToRemove.add(ai.id); } break; } } if(!ai.isAlive) break; } }); aiSnakes = (aiSnakes || []).filter(ai => !AIsToRemove.has(ai.id) && ai.isAlive); } }
-else { // Multiplayer Mode Collision Logic (Team Mode specific scoring)
-    const player = lobbySettingsParsed ? lobbySettingsParsed.players.find(p => p.id === currentUser.uid) : null;
-    if (!player && isMultiplayer) return; // Should not happen if player data is synced
-
-    // Player eats apple
+function checkCollisions() { if (!gameRunning || !playerSnake || playerSnake.length === 0 || GRID_WIDTH <=0 || GRID_HEIGHT <=0) return; const playerHead = playerSnake[0]; for (let i = 1; i < playerSnake.length; i++) { if (playerSnake[i].x === playerHead.x && playerSnake[i].y === playerHead.y) { triggerGameOver("Crashed into yourself!"); return; } } if (!isMultiplayer) {
+    const AIsToRemove = new Set(); (aiSnakes || []).forEach((ai, aiIndex) => { if (!ai.isAlive || !ai.body) return; const aiHead = ai.body[0]; for (let i = 0; i < ai.body.length; i++) { if (ai.body[i].x === playerHead.x && ai.body[i].y === playerHead.y) { if (i === 0) { if (playerSnake.length >= ai.body.length) { score += 2; playSound('kill'); ai.isAlive = false; AIsToRemove.add(ai.id); playerSnake.push({...playerSnake[playerSnake.length - 1]}); updateCurrentScoreDisplay(); } else { triggerGameOver("Head-on collision with a bigger AI snake!"); return; } } else { triggerGameOver("Crashed into an AI snake's body!"); return; } } } if (!gameRunning) return; for(let i = 1; i < playerSnake.length; i++) { if (playerSnake[i].x === aiHead.x && playerSnake[i].y === aiHead.y) { score += 2; playSound('kill'); ai.isAlive = false; AIsToRemove.add(ai.id); playerSnake.push({...playerSnake[playerSnake.length - 1]}); updateCurrentScoreDisplay(); break; } } for (let otherAiIndex = 0; otherAiIndex < (aiSnakes || []).length; otherAiIndex++) { if (aiIndex === otherAiIndex || !aiSnakes[otherAiIndex].isAlive || !aiSnakes[otherAiIndex].body) continue; const otherAI = aiSnakes[otherAiIndex]; for(let segIdx = 0; segIdx < otherAI.body.length; segIdx++){ if(otherAI.body[segIdx].x === aiHead.x && otherAI.body[segIdx].y === aiHead.y){ if(segIdx === 0) { if(ai.body.length > otherAI.body.length) { otherAI.isAlive = false; AIsToRemove.add(otherAI.id); } else if (otherAI.body.length > ai.body.length) { ai.isAlive = false; AIsToRemove.add(ai.id); } else { if(Math.random() < 0.5) {ai.isAlive = false; AIsToRemove.add(ai.id);} else {otherAI.isAlive = false; AIsToRemove.add(ai.id);} } } else { ai.isAlive = false; AIsToRemove.add(ai.id); } break; } } if(!ai.isAlive) break; } }); aiSnakes = (aiSnakes || []).filter(ai => !AIsToRemove.has(ai.id) && ai.isAlive); } }
+else {
     if (apple && playerSnake[0].x === apple.x && playerSnake[0].y === apple.y) {
         const lobbyRef = db.collection("lobbies").doc(currentLobbyId);
         lobbyRef.get().then(doc => {
@@ -653,15 +648,9 @@ else { // Multiplayer Mode Collision Logic (Team Mode specific scoring)
             }
         }).catch(error => console.error("Error handling apple eat in multiplayer:", error));
     }
-    // Player hits AI snake (acts as an obstacle in multiplayer, not game over)
     if (aiSnakes) {
         const aiHit = aiSnakes.some(ai => ai.isAlive && ai.body.some(seg => seg.x === playerSnake[0].x && seg.y === playerSnake[0].y));
-        if (aiHit) {
-            // Handle collision with AI as obstacle - perhaps player loses score or respawns
-            // For now, let's just log it and let the game continue
-            console.log("Player collided with AI obstacle.");
-            // Optionally, you could reset player position or lose points
-        }
+        if (aiHit) { console.log("Player collided with AI obstacle."); }
     }
 }
 }
@@ -681,10 +670,9 @@ function drawGame() {
     }
     if(apple){ ctx.fillStyle = s.apple; if (currentStyle === 'modern' || currentStyle === 'scifi') { ctx.beginPath(); ctx.arc(apple.x * GRID_SIZE + GRID_SIZE / 2, apple.y * GRID_SIZE + GRID_SIZE / 2, GRID_SIZE / 2.2 - (s.segmentPadding || 0), 0, Math.PI * 2); ctx.fill(); } else { ctx.fillRect(apple.x * GRID_SIZE, apple.y * GRID_SIZE, GRID_SIZE, GRID_SIZE); } }
     if(playerSnake){ playerSnake.forEach((segment, index) => { ctx.fillStyle = index === 0 ? s.playerHead : s.playerBody; if (currentStyle === 'modern' || currentStyle === 'scifi') { const pad = s.segmentPadding || 0; ctx.beginPath(); ctx.roundRect(segment.x * GRID_SIZE + pad, segment.y * GRID_SIZE + pad, GRID_SIZE - (pad*2), GRID_SIZE - (pad*2), s.segmentRadius); ctx.fill(); } else { ctx.fillRect(segment.x * GRID_SIZE, segment.y * GRID_SIZE, GRID_SIZE, GRID_SIZE); if (currentStyle === 'retro') { ctx.strokeStyle = s.aiOutline || '#000'; ctx.strokeRect(segment.x * GRID_SIZE, segment.y * GRID_SIZE, GRID_SIZE, GRID_SIZE); } } }); }
-    if (!isMultiplayer && aiSnakes) { // Draw AI snakes only in local mode
+    if (!isMultiplayer && aiSnakes) {
         aiSnakes.forEach(ai => { if(!ai.isAlive || !ai.body) return; ai.body.forEach((segment, index) => { let headColor = ai.color, bodyColor = ai.color; if(currentStyle === 'retro') headColor = darkenColor(ai.color, 30); else if (currentStyle === 'modern' || currentStyle === 'scifi') headColor = darkenColor(ai.color, (currentStyle === 'modern' ? 20:10)); ctx.fillStyle = index === 0 ? headColor : bodyColor; if (currentStyle === 'modern' || currentStyle === 'scifi') { const pad = s.segmentPadding || 0; ctx.beginPath(); ctx.roundRect(segment.x * GRID_SIZE + pad, segment.y * GRID_SIZE + pad, GRID_SIZE - (pad*2), GRID_SIZE - (pad*2), s.segmentRadius); ctx.fill(); } else { ctx.fillRect(segment.x * GRID_SIZE, segment.y * GRID_SIZE, GRID_SIZE, GRID_SIZE); if(s.aiOutline) {ctx.strokeStyle = s.aiOutline; ctx.strokeRect(segment.x * GRID_SIZE, segment.y * GRID_SIZE, GRID_SIZE, GRID_SIZE);} } }); });
     }
-    // Update team scores display if needed
     if (lobbySettingsParsed && lobbySettingsParsed.teamMode && teamScoreDisplayDiv.style.display === 'block') {
         updateTeamScores(lobbySettingsParsed.teams);
     }
