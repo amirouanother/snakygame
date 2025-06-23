@@ -13,16 +13,19 @@
     </div>
 
     <div class="container">
+        <!-- Main Menu -->
         <div id="mainMenu">
             <h1>SNAKE DELUXE</h1>
             <div id="snakeLogoPlaceholder" title="Animated Snake!"></div>
             <button class="menu-button" id="startButton">Start Game</button>
             <button class="menu-button" id="endlessModeButton">Endless Mode</button>
+            <button class="menu-button" id="multiplayerButton">Multiplayer</button> <!-- NEW -->
             <button class="menu-button" id="settingsButton">Settings</button>
             <button class="menu-button" id="creditsButton">Credits</button>
             <div id="mainMenuHighScore">High Score: 0</div>
         </div>
 
+        <!-- Settings Screen -->
         <div id="settingsScreen">
             <h2>Settings</h2>
             <div>
@@ -45,6 +48,7 @@
             <button class="menu-button" id="backToMenuFromSettings">Back to Main Menu</button>
         </div>
 
+        <!-- Game Area -->
         <div id="gameArea">
             <canvas id="gameCanvas"></canvas>
             <div id="scoreBoardContainer">
@@ -60,15 +64,77 @@
                 <div class="empty-cell"></div><button id="downButton">↓</button><div class="empty-cell"></div>
             </div>
         </div>
-        
+
+        <!-- Credits Screen -->
         <div id="creditsScreen">
             <h2>Credits</h2>
             <p>Game concept and development by: <a href="https://github.com/amirouanother" target="_blank" id="creditsGithubLink">amirouanother</a></p>
             <p>This game is a learning project. Thanks for playing! (aussi voici une preuve adam lol)</p>
             <button class="menu-button" id="backToMenuFromCredits">Back to Main Menu</button>
         </div>
+
+        <!-- NEW: Lobby Browser -->
+        <div id="lobbyBrowser">
+            <h2>Multiplayer Lobbies</h2>
+            <button class="menu-button" id="createLobbyButton">Create Lobby</button>
+            <ul id="lobbyList">
+                <li>Loading lobbies...</li>
+            </ul>
+             <div id="lobbyControls">
+                <input type="text" id="inviteLobbyIdInput" placeholder="Enter Lobby ID to Join" readonly>
+                <button class="menu-button" id="joinLobbyByIdBtn">Join Lobby</button>
+            </div>
+            <button class="menu-button" id="backToMenuFromLobbies">Back to Main Menu</button>
+        </div>
+
+        <!-- NEW: Lobby Screen -->
+        <div id="lobbyScreen">
+            <h2>Lobby: <span id="lobbyNameDisplay"></span></h2>
+            <div id="lobbyPlayers">
+                <h3>Players:</h3>
+                <p>Loading players...</p>
+            </div>
+            <div id="lobbySettingsDisplay">
+                <h3>Settings:</h3>
+                <p>Speed: <span id="lobbySpeedDisplay"></span></p>
+                <p>Style: <span id="lobbyStyleDisplay"></span></p>
+                <p>Password: <span id="lobbyPasswordDisplay"></span></p>
+                <p>Team Mode: <span id="lobbyTeamModeDisplay"></span></p>
+                <p>Map Type: <span id="mapTypeDisplay"></span></p> <!-- NEW for Team Mode -->
+                <p>Duration: <span id="gameDurationDisplay"></span></p> <!-- NEW for Team Mode -->
+            </div>
+            <!-- Team Selection UI (shown only in team mode) -->
+            <div id="teamSelection">
+                <h3>Choose Your Team:</h3>
+                <button class="menu-button" id="joinBlueTeamBtn">Join Blue Team</button>
+                <button class="menu-button" id="joinRedTeamBtn">Join Red Team</button>
+            </div>
+            <button class="menu-button" id="readyButton">Ready Up</button>
+            <button class="menu-button" id="startGameButton">Start Game</button> <!-- Host only -->
+            <button class="menu-button" id="leaveLobbyButton">Leave Lobby</button>
+        </div>
+
+        <!-- NEW: Leaderboard Display -->
+        <div id="leaderboardDisplayContainer">
+            <h2>Leaderboard</h2>
+            <ol id="leaderboardList">
+                <li>Loading scores...</li>
+            </ol>
+            <button class="menu-button" id="backToMenuFromLeaderboard">Back to Main Menu</button>
+        </div>
+
+        <!-- NEW: Team Score Display and Timer (shown during team mode games) -->
+        <div id="teamScoreDisplay">
+            <h4>Blue Team: <span id="blueTeamScore">0</span></h4>
+            <h4>Red Team: <span id="redTeamScore">0</span></h4>
+        </div>
+        <div id="gameTimerDisplay">
+            <h3>Time Left: <span id="timer">--:--</span></h3>
+        </div>
+
     </div>
 
+    <!-- Game Overlay (Pause/Game Over) -->
     <div id="gameOverlayMessage">
         <h2 id="overlayTitle">GAME OVER!</h2>
         <p id="overlayText">Your score: 0</p>
@@ -76,6 +142,12 @@
         <button class="menu-button" id="overlayMenuButton">Main Menu</button>
     </div>
 
+    <!-- Firebase SDKs (Compat versions for easier direct use) -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-auth-compat.js"></script>
+
+    <!-- Your game script -->
     <script src="script.js" defer></script>
 </body>
 </html>
